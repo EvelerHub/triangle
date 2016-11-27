@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hypotenuse</title>
+
+    <!-- Bootstrap styles -->
+    <link rel="stylesheet" href="../static/plugins/bootstrap-3.3.7-dist/css/bootstrap.min.css"
+          th:href="@{/plugins/bootstrap-3.3.7-dist/css/bootstrap.min.css}"/>
+
+    <!-- Animate styles -->
+    <link rel="stylesheet" href="../static/plugins/animate/animate.css"
+          th:href="@{/plugins/animate/animate.css}"/>
+
+    <!-- Custom styles -->
+    <style>
+        .wrapper > .container {
+            margin-bottom: 70px;
+        }
+
+        .wrapper > .footer {
+            height: 60px;
+            background: #f5f5f5;
+        }
+
+        .wrapper > .footer .container > p {
+            padding: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper fadeIn animated">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Math</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="active"><a href="#">Hypotenuse</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <img class="img-responsive" src="../static/img/trangl.png"
+                     th:src="@{/img/trangl.png}"/>
+            </div>
+            <div class="col-md-6 col-sm-12 fadeInRight animated">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Input data</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label for="firs_side">First side of triangle(a):</label>
+                            <input type="text" class="form-control" id="firs_side" data-toggle="tooltip"
+                                   title="only numbers!"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="second_side">Second side of triangle(b):</label>
+                            <input type="text" class="form-control" id="second_side" data-toggle="tooltip"
+                                   title="only numbers!"/>
+                        </div>
+                        <div class="btn btn-primary pull-right" id="calculate">Calculate</div>
+                    </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Result</div>
+                    <div class="panel-body">
+                        <div class="progress" id="progress" style="display: none;">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45"
+                                 aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            </div>
+                        </div>
+                        <table class="table" id="result">
+                            <tbody>
+                            <tr>
+                                <td>First side(a):</td>
+                                <td id="first_side_value"></td>
+                            </tr>
+                            <tr>
+                                <td>Second side(b):</td>
+                                <td id="second_side_value"></td>
+                            </tr>
+                            <tr>
+                                <td>Hypotenuse(c):</td>
+                                <td id="hypotenuse_value"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer navbar-fixed-bottom">
+        <div class="container">
+            <p class="text-muted">&copy; 2016 Alexander Manko</p>
+        </div>
+    </footer>
+</div>
+
+<!-- Jquery scripts -->
+<script src="../static/plugins/jquery/jquery-3.1.1.min.js"
+        th:src="@{/plugins/jquery/jquery-3.1.1.min.js}"></script>
+
+<!-- Bootstrap scripts -->
+<script src="../static/plugins/bootstrap-3.3.7-dist/js/bootstrap.min.js"
+        th:src="@{/plugins/bootstrap-3.3.7-dist/js/bootstrap.min.js}"></script>
+
+<!-- Custom script -->
+<script>
+    $('#calculate').click(function () {
+        var $firs_side = $('#firs_side');
+        var $second_side = $('#second_side');
+        var firs_side_value = $firs_side.val();
+        var second_side_value = $second_side.val();
+
+        // validation
+        $firs_side.tooltip('destroy');
+        $second_side.tooltip('destroy');
+
+        if (!$.isNumeric(firs_side_value)) {
+            $firs_side.tooltip('show');
+            $firs_side.focus();
+            return;
+        }
+
+        if (!$.isNumeric(second_side_value)) {
+            $second_side.tooltip('show');
+            $second_side.focus();
+            return;
+        }
+
+        // sending data to server
+        $.ajax({
+            type: "POST",
+            url: "/calculate",
+            data: {
+                'firstSide': firs_side_value,
+                'secondSide': second_side_value
+            },
+            beforeSend: function () {
+                $('#progress').show();
+                $('#result').hide();
+            },
+            success: function (msg) {
+                console.log('success, msg ==> ' + JSON.stringify(msg));
+                $('#first_side_value').html(firs_side_value);
+                $('#second_side_value').html(second_side_value);
+                $('#hypotenuse_value').html(msg.hypotenuse);
+            },
+            error: function () {
+                alert('try again later');
+            },
+            complete: function () {
+                $('#progress').hide();
+                $('#result').show();
+                console.log('complete');
+            }
+        });
+    })
+</script>
+</body>
+</html>
